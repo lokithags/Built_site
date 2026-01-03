@@ -1,30 +1,52 @@
 
-// import React from 'react';
 
-// export interface ChatMessage {
-//   id: string;
-//   role: 'user' | 'model' | 'error';
-//   content: string;
-// }
+export interface CodeBundle {
+  html: string;
+  css: string;
+  js: string;
+  json: string; // data.json
+  extraFiles?: FileNode[];
+}
 
-// export interface StoredData {
-//   code: string;
-//   chatHistory: ChatMessage[];
-// }
-
-// // Type for a React component that can be dynamically loaded
-// export type DynamicReactComponent = React.FC | null;
-
+export interface CodeVersion {
+  id: string;
+  code: CodeBundle;
+  prompt: string;
+  timestamp: number;
+  changesSummary?: string;
+  changedFiles?: string[];
+  plan?: string;
+}
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'model' | 'error';
+  role: "user" | "model" | "error";
   content: string;
+  versionId?: string;
+  timestamp: number;
+  isCodeUpdate?: boolean;
+  changedFiles?: string[];
+  changesSummary?: string;
 }
 
-export interface StoredData {
-  htmlCode: string;
-  cssCode: string;
-  jsCode: string;
-  chatHistory: ChatMessage[];
+export interface Project {
+  id: string;
+  name: string;
+  versions: CodeVersion[];
+  chat: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+// For VSCode IDE (optional but safe to keep)
+export type FileType = "file" | "folder";
+
+export interface FileNode {
+  id: string;
+  name: string;
+  type: FileType;
+  content?: string;
+  language?: string;
+  children?: FileNode[];
+  fileType?: string;
 }

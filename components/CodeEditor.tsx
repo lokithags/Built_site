@@ -1,32 +1,4 @@
 
-// import React from 'react';
-
-// interface CodeEditorProps {
-//   code: string;
-//   onCodeChange: (newCode: string) => void;
-//   readOnly?: boolean;
-// }
-
-// const CodeEditor: React.FC<CodeEditorProps> = ({ code, onCodeChange, readOnly = false }) => {
-//   return (
-//     <div className="relative h-full w-full bg-gray-800 rounded-lg overflow-hidden">
-//       <textarea
-//         className="font-mono-code text-sm w-full h-full p-4 bg-transparent text-gray-200 resize-none outline-none border-none leading-relaxed"
-//         value={code}
-//         onChange={(e) => onCodeChange(e.target.value)}
-//         spellCheck="false"
-//         autoCapitalize="off"
-//         autoCorrect="off"
-//         readOnly={readOnly}
-//         placeholder="Your generated code will appear here..."
-//       />
-//     </div>
-//   );
-// };
-
-// export default CodeEditor;
-
-
 import React from 'react';
 
 interface CodeEditorProps {

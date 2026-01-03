@@ -1,141 +1,140 @@
 
-// import React, { useState, useRef, useEffect } from 'react';
-
-// interface ChatInputProps {
-//   onSendMessage: (message: string) => void;
-//   isLoading: boolean;
-// }
-
-// const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
-//   const [input, setInput] = useState('');
-//   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-//   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-//     setInput(e.target.value);
-//   };
-
-//   const handleSend = () => {
-//     if (input.trim() && !isLoading) {
-//       onSendMessage(input.trim());
-//       setInput('');
-//     }
-//   };
-
-//   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-//     if (e.key === 'Enter' && !e.shiftKey) {
-//       e.preventDefault();
-//       handleSend();
-//     }
-//   };
-
-//   // Auto-resize textarea
-//   useEffect(() => {
-//     if (textareaRef.current) {
-//       textareaRef.current.style.height = 'auto';
-//       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-//     }
-//   }, [input]);
-
-//   return (
-//     <div className="flex items-end p-4 border-t border-gray-700 bg-gray-800 sticky bottom-0 z-10">
-//       <textarea
-//         ref={textareaRef}
-//         className="flex-grow min-h-[48px] max-h-[160px] p-3 border border-gray-600 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-y-auto font-mono-code scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800"
-//         value={input}
-//         onChange={handleInputChange}
-//         onKeyDown={handleKeyDown}
-//         placeholder={isLoading ? 'AI is thinking...' : 'Type your prompt here...'}
-//         rows={1}
-//         disabled={isLoading}
-//       />
-//       <button
-//         onClick={handleSend}
-//         className={`ml-4 px-6 py-3 rounded-lg font-semibold transition-colors duration-200 ${
-//           isLoading || !input.trim()
-//             ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-//             : 'bg-blue-600 hover:bg-blue-700 text-white'
-//         }`}
-//         disabled={isLoading || !input.trim()}
-//       >
-//         {isLoading ? (
-//           <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-//             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-//             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-//           </svg>
-//         ) : (
-//           'Send'
-//         )}
-//       </button>
-//     </div>
-//   );
-// };
-
-// export default ChatInput;
 
 import React, { useState, useRef, useEffect } from 'react';
 
+type Mode = 'code' | 'plan' | 'chat';
+
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, mode: Mode) => void;
   isLoading: boolean;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const [input, setInput] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [mode, setMode] = useState<Mode>('code');
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-  };
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const modes = [
+    { value: 'code' as Mode, label: 'Code', icon: '⚡', color: 'bg-blue-600 hover:bg-blue-500' },
+    { value: 'plan' as Mode, label: 'Plan', icon: '📋', color: 'bg-amber-600 hover:bg-amber-500' },
+    { value: 'chat' as Mode, label: 'Chat', icon: '💬', color: 'bg-purple-600 hover:bg-purple-500' },
+  ];
+
+  const currentMode = modes.find(m => m.value === mode)!;
 
   const handleSend = () => {
-    if (input.trim() && !isLoading) {
-      onSendMessage(input.trim());
-      setInput('');
-    }
+    if (!input.trim() || isLoading) return;
+    onSendMessage(input.trim(), mode);
+    setInput('');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // Auto-resize textarea
+  // Auto resize textarea
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = 'auto';
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   }, [input]);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   return (
-    <div className="p-4 border-t border-gray-700 bg-gray-800 sticky bottom-0 z-10">
-      <div className="relative">
-        <textarea
-          ref={textareaRef}
-          className="w-full h-32 min-h-[48px] max-h-[200px] p-4 pr-12 border border-gray-600 rounded-xl bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-y-auto font-mono scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-800 placeholder-gray-400"
-          value={input}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder={isLoading ? 'AI is thinking...' : 'Describe your web app idea... (Enter to send, Shift+Enter for new line)'}
-          disabled={isLoading}
-        />
-        {/* Send Icon Inside Input */}
-        <button
-          onClick={handleSend}
-          className={`absolute bottom-4 right-4 p-2 rounded-full transition-colors duration-200 ${
-            isLoading || !input.trim()
-              ? 'text-gray-500 cursor-not-allowed'
-              : 'text-blue-400 hover:text-blue-300'
-          }`}
-          disabled={isLoading || !input.trim()}
-          title="Send (Enter)"
-        >
-          <span className="material-symbols-outlined text-lg">
-            send
-          </span>
-        </button>
+    <div className="p-4 border-t border-gray-700 bg-gray-800">
+      <div className="max-w-4xl mx-auto">
+        {/* Input Container */}
+        <div className="bg-gray-700 border border-gray-600 rounded-xl p-4">
+          {/* Textarea */}
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={isLoading ? 'AI is thinking...' : `Type your message (${mode} mode)...`}
+            disabled={isLoading}
+            rows={1}
+            className="w-full resize-none bg-transparent text-gray-100 placeholder-gray-400 text-sm focus:outline-none scrollbar-thin"
+          />
+
+          {/* Controls */}
+          <div className="mt-4 flex items-center justify-between">
+            {/* Mode Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => !isLoading && setShowDropdown(prev => !prev)}
+                disabled={isLoading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-xs tracking-wider shadow-md transition-all
+                  ${currentMode.color} text-white`}
+              >
+                <span>{currentMode.icon}</span>
+                {currentMode.label}
+                <svg
+                  className={`w-3 h-3 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {showDropdown && (
+                <div className="absolute bottom-full mb-2 left-0 w-44 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden z-50">
+                  {modes.map(m => (
+                    <button
+                      key={m.value}
+                      onClick={() => {
+                        setMode(m.value);
+                        setShowDropdown(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${m.color} text-white font-medium`}
+                    >
+                      <span>{m.icon}</span>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Send Button */}
+            <button
+              onClick={handleSend}
+              disabled={isLoading || !input.trim()}
+              className={`w-11 h-11 rounded-xl shadow-lg flex items-center justify-center transition-all
+                ${isLoading || !input.trim()
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+                }`}
+            >
+              <svg className="w-6 h-6 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Hint */}
+        <p className="text-xs text-gray-500 text-center mt-2">
+          Enter to send • Shift+Enter for new line
+        </p>
       </div>
     </div>
   );

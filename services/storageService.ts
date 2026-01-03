@@ -1,35 +1,10 @@
+
 // src/services/storageService.ts
-export interface CodeBundle {
-  html: string;
-  css: string;
-  js: string;
-}
+import { Project, CodeVersion, ChatMessage, CodeBundle } from "../types";
 
-export interface CodeVersion {
-  id: string;
-  code: CodeBundle;
-  prompt: string;
-  timestamp: number;
-}
+export type { Project, CodeVersion, ChatMessage, CodeBundle };
 
-export interface ChatMessage {
-  id: string;
-  role: "user" | "model" | "error";
-  content: string;
-  versionId?: string; // links to CodeVersion
-  timestamp: number;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  chat: ChatMessage[];
-  versions: CodeVersion[];
-  createdAt: number;
-  updatedAt: number;
-}
-
-const STORAGE_KEY = "ai_web_builder_projects_v2";
+const STORAGE_KEY = "ai_web_builder_v7";
 
 export const storageService = {
   getAllProjects(): Project[] {
@@ -42,24 +17,47 @@ export const storageService = {
   },
 
   getProject(id: string): Project | null {
-    return this.getAllProjects().find(p => p.id === id) || null;
+    const project = this.getAllProjects().find(p => p.id === id) || null;
+    if (project) {
+      project.versions.forEach(v => {
+        if (!("json" in v.code)) (v.code as any).json = "{}";
+      });
+    }
+    return project;
   },
 
-  createProject(name: string = "Untitled Project"): Project {
+  createProject(name = "New Project"): Project {
     const projects = this.getAllProjects();
+
+    const welcome: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "model",
+      content: `# Welcome to **${name}**
+
+I'm your AI web developer.
+
+Tell me what you want to build:
+• Modern portfolio
+• Restaurant site
+• SaaS landing page
+• Blog with animations
+• Anything!
+
+I'll create a beautiful, responsive site using only 4 files — and you can edit everything in **data.json**.
+
+Just type your idea below`,
+      timestamp: Date.now(),
+    };
+
     const newProject: Project = {
       id: crypto.randomUUID(),
       name,
-      chat: [{
-        id: crypto.randomUUID(),
-        role: "model",
-        content: "New project created! What would you like to build?",
-        timestamp: Date.now()
-      }],
+      chat: [welcome],
       versions: [],
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
+
     projects.unshift(newProject);
     this.saveProjects(projects);
     return newProject;
@@ -77,6 +75,7 @@ export const storageService = {
   deleteProject(id: string) {
     const projects = this.getAllProjects().filter(p => p.id !== id);
     this.saveProjects(projects);
+    return projects;
   },
 
   addChatMessage(projectId: string, message: ChatMessage) {
@@ -94,5 +93,5 @@ export const storageService = {
       project.versions = project.versions.slice(0, 100);
       this.updateProject(project);
     }
-  }
+  },
 };

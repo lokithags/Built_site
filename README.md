@@ -104,8 +104,8 @@ You can also raise issues for bugs, enhancements, or feature requests.
 
 ### 👨‍💻 Author
 
-**Uganthan V**
-GitHub: [https://github.com/Uganthan-V](https://github.com/Uganthan-V)
+**Lokitha GS**
+GitHub: [https://github.com/lokithags/](https://github.com/lokithags/)
 
 ---
 

@@ -1465,6 +1465,31 @@ Using this project plan, generate ALL 4 files: data.json, index.html, styles.css
 
 IMPORTANT: All content, text, headings, images, numbers, and sections must come from data.json.
 Do not hardcode any content in HTML or JS. JS should dynamically fetch and render everything from data.json.
+IMPORTANT IMAGE RULES:
+- For all images, always use:
+  • Direct HTTPS URLs
+  • Reliable sources (Unsplash, Pexels, Pixabay, Wikimedia Commons)
+  • Avoid dead links, placeholders, or local paths
+  • Image size must be reasonable for web (e.g., width ≤ 2000px)
+  • Do NOT invent URLs
+  • Always pick relevant images that match the content context.
+
+### IMAGE SEARCH TEMPLATE (Pexels)
+# Replace <required keyword> with your content topic
+https://www.pexels.com/search/videos/"<required keyword>"/
+
+### VIDEO SOURCES
+keep these as fallbacks if needed:
+# Professional Videos (high-quality)
+https://www.pexels.com/download/video/4457865/
+https://www.pexels.com/download/video/3255275/
+# Backup professional videos
+https://www.pexels.com/download/video/2845487/
+https://www.pexels.com/download/video/1722967/
+
+# Non-professional Videos (optional, casual use)
+https://www.pexels.com/download/video/2845487/
+https://www.pexels.com/download/video/1722967/
 
 For CSS:
 ${CSS_MASTER_PROMPT}
